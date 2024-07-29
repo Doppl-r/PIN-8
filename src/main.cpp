@@ -1,4 +1,5 @@
 #include <fstream>
+#include <raylib.h>
 #include <iostream>
 #include <bitset>
 
@@ -11,7 +12,7 @@ uint16_t stack[16]{};
 uint8_t stack_pointer{};
 uint8_t delay_timer{};
 uint8_t sound_timer{};
-uint32_t screen[64*32]{};
+uint32_t screen[64*32]{0};
 uint16_t opcode;
 uint8_t keypad[16]{
 	49,50,51,52,
@@ -91,9 +92,43 @@ uint8_t random_number_generator() {
   return rand() % 256;
 }
 
+/************************DRAW SCREEN COMMAND**************************** */
 
 
+void draw_screen() { 
+  for (int i = 0; i < 32; ++i) {
+    for (int r = 0; r < 64; ++r) {
+      if (screen[i*r] != 0) {
+        DrawRectangle(i*20, r*20, 20, 20, WHITE);
+      }
+    }
+  }
+}
+/*
+void draw_screen() {
+  DrawRectangle(0,0, 20, 20, WHITE);
+}
+*/
+int main(void)
+{
+    // Initialization
+    //--------------------------------------------------------------------------------------
+    const int SCREEN_WIDTH{640};
+    const int SCREEN_HEIGHT{320};
 
-int main() {
-    Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/2-ibm-logo.ch8");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8");
+
+    SetTargetFPS(1);
+    int i{0};
+    while (!WindowShouldClose())
+    {
+        if (i < 180) { ++i; }
+        screen[i] = 1;
+        BeginDrawing();
+          ClearBackground(BLACK);
+          draw_screen();
+        EndDrawing();
+    }
+    CloseWindow();
+    return 0;
 }
