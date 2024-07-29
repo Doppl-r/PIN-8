@@ -1,67 +1,99 @@
-/*******************************************************************************************
-*
-*   raylib [core] example - Basic window
-*
-*   Welcome to raylib!
-*
-*   To test examples, just press F6 and execute raylib_compile_execute script
-*   Note that compiled executable is placed in the same folder as .c file
-*
-*   You can find all basic examples on C:\raylib\raylib\examples folder or
-*   raylib official webpage: www.raylib.com
-*
-*   Enjoy using raylib. :)
-*
-*   Example originally created with raylib 1.0, last time updated with raylib 1.0
-*
-*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
-*   BSD-like license that allows static linking with closed source software
-*
-*   Copyright (c) 2013-2024 Ramon Santamaria (@raysan5)
-*
-********************************************************************************************/
+#include <fstream>
+#include <iostream>
+#include <bitset>
 
-#include "raylib.h"
+//**********************CHIP-8 HARDWARE EMULATION **************************** */
+uint8_t registers[16]{}; 
+uint16_t memory[2048]{};
+uint16_t index_register{}; 
+uint16_t program_counter{0x200}; 
+uint16_t stack[16]{};
+uint8_t stack_pointer{};
+uint8_t delay_timer{};
+uint8_t sound_timer{};
+uint32_t screen[64*32]{};
+uint16_t opcode;
+uint8_t keypad[16]{
+	49,50,51,52,
+	81,82,83,84,
+	65,55,67,68,
+	90,91,92,93
+};
 
-//------------------------------------------------------------------------------------
-// Program main entry point
-//------------------------------------------------------------------------------------
-int main(void)
-{
-    // Initialization
-    //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+/************************LOADS THE ROM INTO MEMORY**************************** */
+/*
+Testing the IBM logo CHIP-8 program provided by Timendus
+Program completes in 20 cycles 
+Tests the following OP Codes: 
+--00E0 
+--6xnn
+-Annn
+-7xnn
+-Dxyn
+*/
+const unsigned int START_ADDRESS = 0x200; 
+void Load_ROM(char const * file_name) {   //verified to print out correct num of OP Codes and load into memory
+    std::ifstream file(file_name, std::ios::binary);
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+    if (file.is_open()) {
 
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+        file.seekg(0, file.end);
+        int length{file.tellg()};
+        file.seekg(0, file.beg);
 
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
-        // Update
-        //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
-        //----------------------------------------------------------------------------------
+        char buffer[length]{};
 
-        // Draw
-        //----------------------------------------------------------------------------------
-        BeginDrawing();
+        file.read(buffer, length);
+        file.close();
 
-            ClearBackground(RAYWHITE);
-
-            DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
-
-        EndDrawing();
-        //----------------------------------------------------------------------------------
+        for(int i = 0; i < length; i+=2) {
+            
+            std::cout << std::hex << (std::bitset<16>(buffer[i]<<buffer[i+1])).to_ulong() << "\n";
+            memory[START_ADDRESS + i] = buffer[i];
+            memory[START_ADDRESS + i + 1] = buffer[i + 1];
+        }
+        std::cout<<"**********************************************\n";
     }
+}
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
+/************************LOADS THE FONT INTO MEMORY**************************** */
 
-    return 0;
+uint8_t FONTS[80] = 
+{
+	0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+	0x20, 0x60, 0x20, 0x20, 0x70, // 1
+	0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+	0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+	0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+	0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+	0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+	0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+	0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+	0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+	0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+	0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+	0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+	0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+	0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+	0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+};
+
+const unsigned int FONT_START = 0x50;
+constexpr void load_font() {
+  for (int i = 0; i < 80; ++i) {
+    memory[FONT_START + i] = FONTS[i];
+  }
+}
+
+/************************RANDOM NUMBER GENERATOR**************************** */
+
+uint8_t random_number_generator() {
+  return rand() % 256;
+}
+
+
+
+
+int main() {
+    Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/2-ibm-logo.ch8");
 }
