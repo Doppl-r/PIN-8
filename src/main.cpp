@@ -52,7 +52,7 @@ void Load_ROM(char const * file_name) {   //verified to print out correct num of
             
             memory[START_ADDRESS + i] = buffer[i];
             memory[START_ADDRESS + i + 1] = buffer[i + 1];
-			std::cout<<std::bitset<16>(buffer[i] << buffer[i+1]) << "\n";
+			std::cout<<std::hex<<std::bitset<16>(buffer[i] << buffer[i+1]).to_ulong() << "\n";
         }
     }
 }
