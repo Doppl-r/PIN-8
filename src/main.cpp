@@ -110,8 +110,7 @@ void draw_screen() {
 /************************OP CODES**************************** */
 
 void OP_00E0() { //clear screen
-  //std::memset(screen, 0, 64*32);
-  std::cout<<"clear screen called"<<"\n";
+  std::memset(screen, 0, 64*32);
 }
 
 void OP_00EE() { //return from a subroutine
@@ -517,10 +516,10 @@ int main(void)
     //--------------------------------------------------------------------------------------
     const int SCREEN_WIDTH{640};
     const int SCREEN_HEIGHT{320};
-    
-    initialize_table();
-	opcode = 0x00E0;
-	(*fpt[(opcode & 0xF000u) >> 12u])();
+	initialize_table();
+	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/2-ibm-logo.ch8");
+	load_font();
+	
 	
 	return 0;
 }
