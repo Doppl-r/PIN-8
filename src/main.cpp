@@ -52,7 +52,7 @@ void Load_ROM(char const * file_name) {   //verified to print out correct num of
             
             memory[START_ADDRESS + i] = buffer[i];
             memory[START_ADDRESS + i + 1] = buffer[i + 1];
-			std::cout<<std::hex<<std::bitset<16>(buffer[i] << buffer[i+1]).to_ulong() << "\n";
+			//std::cout<<std::hex<<std::bitset<16>(buffer[i] << buffer[i+1]).to_ulong() << "\n";
         }
     }
 }
@@ -517,7 +517,31 @@ void initialize_table() {
 }
 
 /************************CYCLE FUNCTION**************************** */
+void Cycle()
+{
+	// Fetch
+	opcode = (memory[program_counter] << memory[program_counter + 1]);
+	
+	// Increment the PC before we execute anything
+	program_counter += 2;
+	
+	// Decode and Execute
+	std::cout<<"Current OPCODE "<<opcode<<"\n";
+	(*fpt[(opcode & 0xF000u)])();
+	/*
+	// Decrement the delay timer if it's been set
+	if (delay_timer > 0)
+	{
+		--delay_timer; 
+	}
 
+	// Decrement the sound timer if it's been set
+	if (sound_timer > 0)
+	{
+		--sound_timer;
+	}
+	*/
+}
 
 int main(void)
 {
@@ -525,11 +549,30 @@ int main(void)
     //--------------------------------------------------------------------------------------
     const int SCREEN_WIDTH{640};
     const int SCREEN_HEIGHT{320};
+	SetTargetFPS(1);
 	initialize_table();
 	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/2-ibm-logo.ch8");
 	load_font();
-	
 
-	
+	Cycle();
 	return 0;
+	/*
+	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 INTERPRETER)");
+
+	while(!WindowShouldClose()) {
+		Cycle();
+
+		BeginDrawing();
+			ClearBackground(BLACK);
+			draw_screen();
+		EndDrawing();
+	}
+	return 0;
+	std::cout<<"Printing opcodes" <<"\n";
+	for (int i = 0; i < 50; i++) {
+		opcode = memory[program_counter]<<memory[program_counter + 1];
+		program_counter += 2;
+		std::cout<<std::hex<<std::bitset<16>(opcode).to_ulong()<<"\n";
+	}
+	*/
 }
