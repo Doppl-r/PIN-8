@@ -1,7 +1,7 @@
 #include <fstream>
 #include <raylib.h>
 #include <iostream>
-#include <bitset>
+#include <cstring>
 
 //**********************CHIP-8 HARDWARE EMULATION **************************** */
 uint8_t registers[16]{}; 
@@ -49,7 +49,6 @@ void Load_ROM(char const * file_name) {   //verified to print out correct num of
 
         for(int i = 0; i < length; i+=2) {
             
-            std::cout << std::hex << (std::bitset<16>(buffer[i]<<buffer[i+1])).to_ulong() << "\n";
             memory[START_ADDRESS + i] = buffer[i];
             memory[START_ADDRESS + i + 1] = buffer[i + 1];
         }
@@ -111,7 +110,7 @@ void draw_screen() {
 /************************OP CODES**************************** */
 
 void OP_00E0() { //clear screen
-  memset(screen, 0, 64*32);
+  std::memset(screen, 0, 64*32);
 }
 
 void OP_00EE() { //return from a subroutine
