@@ -464,8 +464,51 @@ void TableF()
 }
 
 void initialize_table() {
-	fpt[0x0000] = &Table0;
-	fpt00[0x0] = &OP_00E0;
+	fpt[0x1] = &OP_1nnn; //Initializing 0-F Codes
+	fpt[0x2] = &OP_2nnn;
+	fpt[0x3] = &OP_3xkk;
+	fpt[0x4] = &OP_4xkk;
+	fpt[0x5] = &OP_5xy0;
+	fpt[0x6] = &OP_6xkk;
+	fpt[0x7] = &OP_7xkk;
+	fpt[0x9] = &OP_9xy0;
+	fpt[0xA] = &OP_Annn;
+	fpt[0xB] = &OP_Bnnn;
+	fpt[0xC] = &OP_Cxkk;
+	fpt[0xD] = &OP_Dxyn;
+
+	fpt8[0x0] = &OP_8xy0; //Initializing 8 : 0-E Codes
+	fpt8[0x1] = &OP_8xy1;
+	fpt8[0x2] = &OP_8xy2;
+	fpt8[0x3] = &OP_8xy3;
+	fpt8[0x4] = &OP_8xy4;
+	fpt8[0x5] = &OP_8xy5;
+	fpt8[0x6] = &OP_8xy6;
+	fpt8[0x7] = &OP_8xy7;
+	fpt8[0xE] = &OP_8xyE;
+
+	fpt00[0x0] = &OP_00E0; //Initializing 00 OP codes
+	fpt00[0xE] = &OP_00EE;
+
+	fptE[0x1] = &OP_ExA1; //initializing E OP codes
+	fptE[0xE] = &OP_Ex9E;
+
+	fptF[0x07] = &OP_Fx07; //Initializing F OP codes
+	fptF[0x0A] = &OP_Fx0A;
+	fptF[0x15] = &OP_Fx15;
+	fptF[0x18] = &OP_Fx18;
+	fptF[0x1E] = &OP_Fx1E;
+	fptF[0x29] = &OP_Fx29;
+	fptF[0x33] = &OP_Fx33;
+	fptF[0x55] = &OP_Fx55;
+	fptF[0x65] = &OP_Fx65;
+
+
+
+	fpt[0x0] = &Table0;
+	fpt[0x8] = &Table8;
+	fpt[0xE] = &TableE;
+	fpt[0xF] = &TableF;
 }
 
 int main(void)
