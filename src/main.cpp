@@ -520,14 +520,18 @@ void initialize_table() {
 void Cycle()
 {
 	// Fetch
-	opcode = (memory[program_counter] << memory[program_counter + 1]);
+	//opcode = (memory[program_counter] << memory[program_counter + 1]);
 	
 	// Increment the PC before we execute anything
-	program_counter += 2;
+	//program_counter += 2;
 	
 	// Decode and Execute
-	std::cout<<"Current OPCODE "<<opcode<<"\n";
-	(*fpt[(opcode & 0xF000u)])();
+	//std::cout<<opcode<<"\n";
+
+	opcode = memory[program_counter]<<memory[program_counter + 1];
+	program_counter += 2;
+	std::cout<<opcode<<"\n";
+	//(*fpt[(opcode & 0xF000u)])();
 	/*
 	// Decrement the delay timer if it's been set
 	if (delay_timer > 0)
@@ -554,9 +558,14 @@ int main(void)
 	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/2-ibm-logo.ch8");
 	load_font();
 
-	Cycle();
-	return 0;
-	/*
+	std::cout<<"Printing opcodes" <<"\n";
+	for (int i = 0; i < 50; i++) {
+		opcode = memory[program_counter]<<memory[program_counter + 1];
+		program_counter += 2;
+		//std::cout<<std::bitset<16>(opcode)<<"\n";
+		std::cout<<opcode<<"\n";
+	}
+
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 INTERPRETER)");
 
 	while(!WindowShouldClose()) {
@@ -568,11 +577,6 @@ int main(void)
 		EndDrawing();
 	}
 	return 0;
-	std::cout<<"Printing opcodes" <<"\n";
-	for (int i = 0; i < 50; i++) {
-		opcode = memory[program_counter]<<memory[program_counter + 1];
-		program_counter += 2;
-		std::cout<<std::hex<<std::bitset<16>(opcode).to_ulong()<<"\n";
-	}
-	*/
+	
+	
 }
