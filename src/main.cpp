@@ -111,6 +111,7 @@ void draw_screen() {
 
 void OP_00E0() { //clear screen
   std::memset(screen, 0, 64*32);
+  std::cout<<"clear screen\n";
 }
 
 void OP_00EE() { //return from a subroutine
@@ -156,12 +157,14 @@ void OP_6xkk() { //Set regX = kk
   uint8_t reg = (opcode & 0x0F00u) >> 8u;
   uint8_t byte = opcode & 0x00FF;
   registers[reg] = byte;
+  std::cout<<"regX = kk\n";
 }
 
 void OP_7xkk() { //regX += kk
   uint8_t reg = (opcode & 0x0F00u) >> 8u;
   uint8_t byte = opcode & 0x00FF;
   registers[reg] += byte;
+  std::cout<<"regX += kk\n";
 }
 
 void OP_8xy0() { //regX = regY
@@ -257,6 +260,7 @@ void OP_Annn() { //set index to address
 	uint16_t address = opcode & 0x0FFFu;
 
 	index_register = address;
+	std::cout<<"set index to register\n";
 }
 
 void OP_Bnnn() { //jump to location
@@ -293,6 +297,7 @@ void OP_Dxyn() //Draws sprites
 			}
 		}
 	}
+	std::cout<<"draw sprite\n";
 }
 
 void OP_Ex9E() { //skip next instruction if the value of a key = regX
@@ -510,6 +515,9 @@ void initialize_table() {
 	fpt[0xF] = &TableF;
 }
 
+/************************CYCLE FUNCTION**************************** */
+
+
 int main(void)
 {
     // Initialization
@@ -520,6 +528,7 @@ int main(void)
 	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/2-ibm-logo.ch8");
 	load_font();
 	
+
 	
 	return 0;
 }
