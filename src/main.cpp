@@ -110,7 +110,8 @@ void draw_screen() {
 /************************OP CODES**************************** */
 
 void OP_00E0() { //clear screen
-  std::memset(screen, 0, 64*32);
+  //std::memset(screen, 0, 64*32);
+  std::cout<<"clear screen called"<<"\n";
 }
 
 void OP_00EE() { //return from a subroutine
@@ -444,7 +445,8 @@ decltype(&OP_NULL) fptF[0x65 + 1]{&OP_NULL}; //for codes that begin with F
 
 void Table0()
 {
-	(*fpt00[opcode & 0x000Fu])();
+	//(*fpt00[opcode & 0x000Fu])();
+	std::cout<<"TABLE0 RAN!" << "\n";
 }
 
 void Table8()
@@ -518,15 +520,9 @@ int main(void)
     const int SCREEN_WIDTH{640};
     const int SCREEN_HEIGHT{320};
     
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 Interpreter)");
-    SetTargetFPS(1000);
-
-    int i{0};
-    while (!WindowShouldClose()) {
-      BeginDrawing();
-      screen[i++] = 1;
-      draw_screen();
-      EndDrawing();
-    }
-    return 0;
+    initialize_table();
+	
+	(*(fpt[0x00E0 & 0xF000]))();
+	
+	return 0;
 }
