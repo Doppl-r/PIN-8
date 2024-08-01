@@ -96,16 +96,17 @@ uint8_t random_number_generator() {
 
 
 void draw_screen() {
-  for (int i = 0; i < 32; ++i) {
-    for (int r = 0; r < 64; ++r) {
-      
-      if (screen[i*32 + r] == 1) {
-        DrawRectangle(r*20, i*20, 20, 20, WHITE);
-      }
-      
-      //std::cout<<(i*32 + r)<<" : " << screen[i*32 + r] << "\n";
-    }
-  }
+	std::cout<<"Draw screen called\n";
+	for (int i = 0; i < 32; ++i) {
+		for (int r = 0; r < 64; ++r) {
+		
+		if (screen[i*32 + r] == 1) {
+			DrawRectangle(r*20, i*20, 20, 20, WHITE);
+		}
+		
+		//std::cout<<(i*32 + r)<<" : " << screen[i*32 + r] << "\n";
+		}
+	}
 }
 
 /************************OP CODES**************************** */
@@ -520,18 +521,21 @@ void initialize_table() {
 void Cycle()
 {
 	// Fetch
-	//opcode = (memory[program_counter] << memory[program_counter + 1]);
-	
+	uint8_t firstHalf{static_cast<uint8_t>(memory[program_counter])};
+	uint8_t secondHalf{static_cast<uint8_t>(memory[program_counter+1])};
+
+	opcode = (static_cast<uint16_t>(firstHalf)<<8u) | secondHalf;
+
+	std::cout << std::hex << std::bitset<16>(opcode).to_ulong()<<"\n";
+
 	// Increment the PC before we execute anything
-	//program_counter += 2;
+	program_counter += 2;
 	
 	// Decode and Execute
-	//std::cout<<opcode<<"\n";
+	std::cout << "Reading opcode : " << std::hex << ((opcode & 0xF000u) >> 12u) << "\n";
+	(*fpt[(opcode & 0xF000u) >> 12u])();
+	
 
-	opcode = memory[program_counter]<<memory[program_counter + 1];
-	program_counter += 2;
-	std::cout<<opcode<<"\n";
-	//(*fpt[(opcode & 0xF000u)])();
 	/*
 	// Decrement the delay timer if it's been set
 	if (delay_timer > 0)
@@ -553,30 +557,23 @@ int main(void)
     //--------------------------------------------------------------------------------------
     const int SCREEN_WIDTH{640};
     const int SCREEN_HEIGHT{320};
-	SetTargetFPS(1);
+	SetTargetFPS(8);
 	initialize_table();
 	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/2-ibm-logo.ch8");
 	load_font();
 
-	std::cout<<"Printing opcodes" <<"\n";
-	for (int i = 0; i < 50; i++) {
-		opcode = memory[program_counter]<<memory[program_counter + 1];
-		program_counter += 2;
-		//std::cout<<std::bitset<16>(opcode)<<"\n";
-		std::cout<<opcode<<"\n";
-	}
-
+	
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 INTERPRETER)");
+
 
 	while(!WindowShouldClose()) {
 		Cycle();
-
 		BeginDrawing();
 			ClearBackground(BLACK);
 			draw_screen();
 		EndDrawing();
 	}
 	return 0;
-	
-	
+
+
 }
