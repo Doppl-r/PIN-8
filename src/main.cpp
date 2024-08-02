@@ -13,7 +13,7 @@ uint16_t stack[16]{};
 uint8_t stack_pointer{};
 uint8_t delay_timer{};
 uint8_t sound_timer{};
-uint32_t screen[64*32]{0};
+uint8_t screen[64*32]{0};
 uint16_t opcode;
 uint8_t keypad[16]{
 	49,50,51,52,
@@ -96,7 +96,6 @@ uint8_t random_number_generator() {
 
 
 void draw_screen() {
-	std::cout<<"Draw screen called\n";
 	for (int i = 0; i < 32; ++i) {
 		for (int r = 0; r < 64; ++r) {
 		
@@ -277,27 +276,58 @@ void OP_Cxkk() { //set regX to random value and kk
 	registers[reg1] = random_number_generator() & byte;
 }
 
-void OP_Dxyn() //Draws sprites
+void OP_Dxyn() //Draws sprites               *****************************
 {
-	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
-	uint8_t Vy = (opcode & 0x00F0u) >> 4u;
-	uint8_t height = opcode & 0x000Fu;
-	uint8_t xPos = registers[Vx] % 64;
-	uint8_t yPos = registers[Vy] % 32;
-	registers[0xF] = 0;
-	for (unsigned int row = 0; row < height; ++row) {
-		uint8_t spriteByte = memory[index_register + row];
+	uint8_t Vx = (opcode & 0x0F00u) >> 8u; //gets the x position of the sprite, stores it in Vx
+	uint8_t Vy = (opcode & 0x00F0u) >> 4u; //gets the y position of the sprite, stores it in Vy
+	uint8_t height = opcode & 0x000Fu; //gets the height of the sprite, stores it in height
+	uint8_t xPos = registers[Vx] % 64; //wraps the sprite to the left if Vx > 64
+	uint8_t yPos = registers[Vy] % 32; //wraps the sprite to the top if Vx > 32
+	registers[0xF] = 0; //This is the register responsible for storing collisions
 
-		for (unsigned int col = 0; col < 8; ++col) {
-			uint8_t spritePixel = spriteByte & (0x80u >> col);
-			uint32_t* screenPixel = &screen[(yPos + row) * 64 + (xPos + col)];
-			if (spritePixel) {
-				if (*screenPixel == 0xFFFFFFFF) {
-					registers[0xF] = 1;
-				}
-				*screenPixel ^= 0xFFFFFFFF;
-			}
+	for (int r = 0; r < height; ++r) {
+		uint8_t spriteByte = memory[index_register + r]; 
+
+		if (((spriteByte & 0b10000000)>>7u) ^ screen[32*(Vy+r)+Vx+0]) {
+			registers[0xF] = 1;
 		}
+		screen[32*(Vy+r)+Vx+0] = ((spriteByte & 0b10000000)>>7u) ^ screen[32*(Vy+r)+Vx+0];
+
+		if (((spriteByte & 0b01000000)>>6u) ^ screen[32*(Vy+r)+Vx+1]) {
+			registers[0xF] = 1;
+		}
+		screen[32*(Vy+r)+Vx+1] = ((spriteByte & 0b01000000)>>7u) ^ screen[32*(Vy+r)+Vx+1];
+
+		if (((spriteByte & 0b00100000)>>5u) ^ screen[32*(Vy+r)+Vx+2]) {
+			registers[0xF] = 1;
+		}
+		screen[32*(Vy+r)+Vx+2] = ((spriteByte & 0b00100000)>>7u) ^ screen[32*(Vy+r)+Vx+2];
+
+		if (((spriteByte & 0b00010000)>>4u) ^ screen[32*(Vy+r)+Vx+3]) {
+			registers[0xF] = 1;
+		}
+		screen[32*(Vy+r)+Vx+3] = ((spriteByte & 0b00010000)>>7u) ^ screen[32*(Vy+r)+Vx+3];
+
+		if (((spriteByte & 0b00001000)>>3u) ^ screen[32*(Vy+r)+Vx+4]) {
+			registers[0xF] = 1;
+		}
+		screen[32*(Vy+r)+Vx+4] = ((spriteByte & 0b00001000)>>7u) ^ screen[32*(Vy+r)+Vx+4];
+
+		if (((spriteByte & 0b00000100)>>2u) ^ screen[32*(Vy+r)+Vx+5]) {
+			registers[0xF] = 1;
+		}
+		screen[32*(Vy+r)+Vx+5] = ((spriteByte & 0b00000100)>>7u) ^ screen[32*(Vy+r)+Vx+5];
+
+		if (((spriteByte & 0b00000010)>>1u) ^ screen[32*(Vy+r)+Vx+6]) {
+			registers[0xF] = 1;
+		}
+		screen[32*(Vy+r)+Vx+6] = ((spriteByte & 0b00000010)>>7u) ^ screen[32*(Vy+r)+Vx+6];
+
+		if (((spriteByte & 0b00000001)) ^ screen[32*(Vy+r)+Vx+7]) {
+			registers[0xF] = 1;
+		}
+		screen[32*(Vy+r)+Vx+7] = ((spriteByte & 0b00000001)>>7u) ^ screen[32*(Vy+r)+Vx+7];
+
 	}
 	std::cout<<"draw sprite\n";
 }
@@ -557,7 +587,7 @@ int main(void)
     //--------------------------------------------------------------------------------------
     const int SCREEN_WIDTH{640};
     const int SCREEN_HEIGHT{320};
-	SetTargetFPS(8);
+	SetTargetFPS(1);
 	initialize_table();
 	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/2-ibm-logo.ch8");
 	load_font();
