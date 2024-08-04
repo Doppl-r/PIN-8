@@ -157,14 +157,15 @@ void OP_5xy0() { //skip next command if reg x is equal to reg y
 
 void OP_6xkk() { //Set regX = kk
   uint8_t reg = std::bitset<8>((opcode & 0x0F00u) >> 8u).to_ulong();
-  uint8_t byte = std::bitset<8>((opcode & 0x00FFu) >> 8u).to_ulong();
+  uint8_t byte = std::bitset<8>((opcode & 0x00FFu)).to_ulong();
+
   registers[reg] = byte;
   std::cout<<"regX = kk\n";
 }
 
 void OP_7xkk() { //regX += kk
   uint8_t reg = std::bitset<8>((opcode & 0x0F00u) >> 8u).to_ulong();
-  uint8_t byte = std::bitset<8>((opcode & 0x00FFu) >> 8u).to_ulong();
+  uint8_t byte = std::bitset<8>((opcode & 0x00FFu)).to_ulong();
   registers[reg] += byte;
   std::cout<<"regX += kk\n";
 }
@@ -282,11 +283,15 @@ void OP_Dxyn() //Draws sprites   ***************************** formula for (x,y)
 	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
 	uint8_t Vy = (opcode & 0x00F0u) >> 4u;
 	uint8_t height = opcode & 0x000Fu;
-
+	std::cout<< "Val in Vx: " << std::bitset<8>(registers[Vx]) << "\n";
+	std::cout<< "Val in Vy: " << std::bitset<8>(registers[Vy]) << "\n";
 	uint8_t xPos{registers[Vx]};
 	if (registers[Vx] > 64) {xPos = registers[Vx] % 64;}
 	uint8_t yPos{registers[Vy]};
 	if (registers[Vy] > 32) {yPos = registers[Vx] % 32;}
+
+	std::cout << "xPos: " << std::bitset<8>(xPos) << "\n";
+	std::cout << "ypos: " << std::bitset<8>(yPos) << "\n";
 
 	registers[0xF] = 0;
 
