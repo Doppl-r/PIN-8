@@ -97,11 +97,12 @@ uint8_t random_number_generator() {
 
 
 void draw_screen() {
-	for (int i = 0; i < 32; ++i) {
-		for (int r = 0; r < 64; ++r) {
+	for (int y = 0; y < 32; ++y) {
+		for (int x = 0; x < 64; ++x) {
 		
-		if (screen[i*32 + r] == 1) {
-			DrawRectangle(r*20, i*20, 20, 20, WHITE);
+		if (screen[(64*y) + x] == 1) {
+			DrawRectangle(x*20, y*20, 20, 20, WHITE);
+			
 		}
 		
 		//std::cout<<(i*32 + r)<<" : " << screen[i*32 + r] << "\n";
@@ -125,21 +126,39 @@ void OP_Dxyn() //Draws sprites   ***************************** formula for (x,y)
 	registers[0xF] = 0;
 
 	for (int r = 0; r < height; r++) {
-		std::cout << "Printed : " << r << " times\n";
-
 		uint8_t spriteByte = memory[index_register + r];
+
+		std::cout << "Printed : " << r << " times\n";
+		std::cout << std::bitset<8>(spriteByte) << "\n";
 		
 		for (int i = 0; i < 8; ++i) {
+
+			uint8_t maskedBit = (spriteByte & (static_cast<uint8_t>(1) << (7-i))) >>(7-i);
+			std::cout << std::bitset<1>(maskedBit) << "\n";
+
+			screen[(64*(yPos+r) + xPos + i)] = maskedBit;
+
+
 			/*
 			if ((screen[(64*(yPos+r)) + xPos + i]) ^ ((spriteByte & static_cast<uint8_t>(1) <<(7-i)) >> (7-i))) {
 				registers[0xF] = 1;
 			}
 			*/
 			//screen[(64*(yPos+r)) + xPos + i] = (screen[(64*(yPos+r)) + xPos + i]) ^ ((spriteByte & static_cast<uint8_t>(1) <<(7-i)) >> (7-i));
-			uint8_t maskedBit = spriteByte & (static_cast<uint8_t>(1) << (7-i)) >>(7-i);
-			screen[(64*(yPos+r) + xPos + i)] = maskedBit;
 		}
 	}
+}
+
+void drawSmile(uint8_t x, uint8_t y) {
+	screen[64*(y+0) + (x + 1)] = 1;
+	screen[64*(y+0) + (x + 3)] = 1;
+	screen[64*(y+1) + (x + 1)] = 1;
+	screen[64*(y+1) + (x + 3)] = 1;
+	screen[64*(y+3) + (x + 0)] = 1;
+	screen[64*(y+3) + (x + 4)] = 1;
+	screen[64*(y+4) + (x + 1)] = 1;
+	screen[64*(y+4) + (x + 2)] = 1;
+	screen[64*(y+4) + (x + 3)] = 1;
 }
 
 int main(void)
@@ -149,13 +168,11 @@ int main(void)
     const int SCREEN_WIDTH{1280};
     const int SCREEN_HEIGHT{640};
 	SetTargetFPS(10);
-	initialize_table();
 	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/2-ibm-logo.ch8");
 	load_font();
-	memory[0] = 0b10101010;
-	memory[1] = 0b01010101;
-	memory[2] = 0b10101010;
-	/*
+
+
+	
 	memory[0] = 0b11111111;
 	memory[1] = 0b00000000;
 	memory[2] = 0b11111111;
@@ -171,15 +188,16 @@ int main(void)
 	memory[12] = 0b11111111;
 	memory[13] = 0b00000000;
 	memory[14] = 0b11111111;
-	*/
+	
 	index_register = 0;
 	registers[0] = 0;
 	registers[1] = 0;
-	opcode = 0xD011;
-	OP_Dxyn();
+	opcode = 0xD01F;
 	
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 Interpreter)");
 
+	OP_Dxyn();
+	//drawSmile(5,5);
 	
 	while(!WindowShouldClose()) {
 		//Cycle();
