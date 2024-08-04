@@ -293,12 +293,8 @@ void OP_Dxyn() //Draws sprites   ***************************** formula for (x,y)
 	for (int r = 0; r < height; r++) {
 		uint8_t spriteByte = memory[index_register + r];
 
-		std::cout << "Printed : " << r << " times\n";
-		std::cout << std::bitset<8>(spriteByte) << "\n";
-		
 		for (int i = 0; i < 8; ++i) {
 			uint8_t maskedBit = (spriteByte & (static_cast<uint8_t>(1) << (7-i))) >>(7-i);
-			std::cout << std::bitset<1>(maskedBit) << "\n";
 
 			screen[(64*(yPos+r) + xPos + i)] = screen[(64*(yPos+r) + xPos + i)] ^ maskedBit;
 
