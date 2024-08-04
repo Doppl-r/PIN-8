@@ -156,15 +156,15 @@ void OP_5xy0() { //skip next command if reg x is equal to reg y
 }
 
 void OP_6xkk() { //Set regX = kk
-  uint8_t reg = (opcode & 0x0F00u) >> 8u;
-  uint8_t byte = opcode & 0x00FF;
+  uint8_t reg = std::bitset<8>((opcode & 0x0F00u) >> 8u).to_ulong();
+  uint8_t byte = std::bitset<8>((opcode & 0x00FFu) >> 8u).to_ulong();
   registers[reg] = byte;
   std::cout<<"regX = kk\n";
 }
 
 void OP_7xkk() { //regX += kk
-  uint8_t reg = (opcode & 0x0F00u) >> 8u;
-  uint8_t byte = opcode & 0x00FF;
+  uint8_t reg = std::bitset<8>((opcode & 0x0F00u) >> 8u).to_ulong();
+  uint8_t byte = std::bitset<8>((opcode & 0x00FFu) >> 8u).to_ulong();
   registers[reg] += byte;
   std::cout<<"regX += kk\n";
 }
@@ -282,12 +282,12 @@ void OP_Dxyn() //Draws sprites   ***************************** formula for (x,y)
 	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
 	uint8_t Vy = (opcode & 0x00F0u) >> 4u;
 	uint8_t height = opcode & 0x000Fu;
-	uint8_t xPos{registers[Vx] % 64};
-	//if (registers[Vx] > 64) {xPos = registers[Vx] % 64;} else{ xPos = registers[Vx];}
-	uint8_t yPos{registers[Vy] % 32};
-	//if (registers[Vy] > 32) {yPos = registers[Vx] % 32;} else{ yPos = registers[Vy];}
+	uint8_t xPos{registers[Vx]};
+	if (registers[Vx] > 64) {xPos = registers[Vx] % 64;}
+	uint8_t yPos{registers[Vy]};
+	if (registers[Vy] > 32) {yPos = registers[Vx] % 32;}
 	registers[0xF] = 0;
-
+	std::cout << "x position: " << std::dec << xPos << " *** y position: " << std::dec << yPos << "\n";
 	for (int r = 0; r < height; r++) {
 		uint8_t spriteByte = memory[index_register + r];
 		std::cout << std::bitset<8>(spriteByte) << "\n";
@@ -525,17 +525,17 @@ void Cycle()
 
 	opcode = (static_cast<uint16_t>(firstHalf)<<8u) | secondHalf;
 
-	std::cout << std::hex << std::bitset<16>(opcode).to_ulong()<<"\n";
+	
 
 	// Increment the PC before we execute anything
 	program_counter += 2;
 	
 	// Decode and Execute
-	std::cout << "Reading opcode : " << std::hex << ((opcode & 0xF000u) >> 12u) << "\n";
+	std::cout<< "-----------------------------------\n"<<"Reading opcode : " << std::hex << opcode << "\n" << "**********************\n";
 	(*fpt[(opcode & 0xF000u) >> 12u])();
 	
 
-	/*
+	
 	// Decrement the delay timer if it's been set
 	if (delay_timer > 0)
 	{
@@ -547,7 +547,7 @@ void Cycle()
 	{
 		--sound_timer;
 	}
-	*/
+	
 }
 
 int main(void)
@@ -561,10 +561,9 @@ int main(void)
 	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/2-ibm-logo.ch8");
 	load_font();
 
+	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 Interpreter)");
+
 	
-	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 INTERPRETER)");
-
-
 	while(!WindowShouldClose()) {
 		Cycle();
 		BeginDrawing();
@@ -573,6 +572,6 @@ int main(void)
 		EndDrawing();
 	}
 	return 0;
-
+	
 
 }
