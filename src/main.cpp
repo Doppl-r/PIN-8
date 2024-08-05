@@ -210,6 +210,7 @@ void OP_8xy4() {
 
 	uint16_t sum = registers[Vx] + registers[Vy];
 
+	registers[Vx] = sum & 0x00FFu;
 	if (sum > 255)
 	{
 		registers[0xF] = 1;
@@ -219,54 +220,62 @@ void OP_8xy4() {
 		registers[0xF] = 0;
 	}
 
-	registers[Vx] = sum & 0xFFu;
+	
 	std::cout<<"Set regX = regX + regY, regF set to carry\n";
 }
 
 void OP_8xy5() { // set regX-=regY  set regF  = NOT borrow
-	uint8_t reg = (opcode & 0x0F00u) >> 8u;
-	uint8_t reg2 = (opcode & 0x00F0u) >> 4u;
+	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+	uint8_t Vy = (opcode & 0x00F0u) >> 4u;
 
-	if (registers[reg] > registers[reg2]) {
+	uint8_t valX = registers[Vx];
+	uint8_t valY = registers[Vy];
+
+	registers[Vx] -= registers[Vy];
+
+	if (valX >= valY) {
 		registers[0xF] = 1;
 	}
 	else {
 		registers[0xF] = 0;
 	}
-
-	registers[reg] -= registers[reg2];
 	std::cout<<"Set regX -= regY, set regF = NOT borrow\n";
 }
 
 void OP_8xy6() { // set regX = regX SHR 1
-	uint8_t reg = (opcode & 0x0F00u) >> 8u;
-	registers[0xF] = (registers[reg] & 0x1u);
+	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+	
+	// Save LSB in VF
+	registers[0xF] = (registers[Vx] & 0x1u);
 
-	registers[reg] >>= 1;
-	std::cout<<"Divide regX by 2, save last bit in regF\n";
+	registers[Vx] >>= 1;
+
 }
 
 void OP_8xy7() { //set regX = regY - regX set regF = NOT borrow
-	uint8_t reg1 = (opcode & 0x0F00u) >> 8u;
-	uint8_t reg2 = (opcode & 0x00F0u) >> 4u;
+	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+	uint8_t Vy = (opcode & 0x00F0u) >> 4u;
 
-	if (registers[reg2] > registers[reg1]) {
+	uint8_t valX = registers[Vx];
+	uint8_t valY = registers[Vy];
+
+	registers[Vx] = valY - valX;
+
+	if (valY >= valX) {
 		registers[0xF] = 1;
 	}
 	else {
 		registers[0xF] = 0;
 	}
-	registers[reg1] = registers[reg2] - registers[reg1];
 	
 }
 
 void OP_8xyE() { //set regX  = regX SHL 1
-	uint8_t reg1 = (opcode & 0x0F00u) >> 8u;
+	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
 
-	// Save MSB in VF
-	registers[0xF] = (registers[reg1] & 0x80u) >> 7u;
+	registers[0xF] = (registers[Vx] & 0x80u) >> 7u;
 
-	registers[reg1] <<= 1;
+	registers[Vx] <<= 1;
 }
 
 void OP_9xy0() { //skip next instruction if regX != regY
