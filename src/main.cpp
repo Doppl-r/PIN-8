@@ -362,62 +362,9 @@ void OP_Fx07() { //set regX to delay timer
 
 void OP_Fx0A() { //wait for a key press, store value in regX
 	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
-	int key = GetKeyPressed();
+	int key =
 
-	if (key != 0) {
-		switch(key) {
-			case 49:
-			registers[Vx] = 0;
-			break;
-			case 50:
-			registers[Vx] = 1;
-			break;
-			case 51:
-			registers[Vx] = 2;
-			break;
-			case 52:
-			registers[Vx] = 3;
-			break;
-			case 81:
-			registers[Vx] = 4;
-			break;
-			case 82:
-			registers[Vx] = 5;
-			break;
-			case 83:
-			registers[Vx] = 6;
-			break;
-			case 84:
-			registers[Vx] = 7;
-			break;
-			case 65:
-			registers[Vx] = 8;
-			break;
-			case 66:
-			registers[Vx] = 9;
-			break;
-			case 67:
-			registers[Vx] = 10;
-			break;
-			case 68:
-			registers[Vx] = 11;
-			break;
-			case 90:
-			registers[Vx] = 12;
-			break;
-			case 91:
-			registers[Vx] = 13;
-			break;
-			case 92:
-			registers[Vx] = 14;
-			break;
-			case 93:
-			registers[Vx] = 15;
-			break;
-		}
-	} else {
-		program_counter -=2;
-	}
+	
 }
 
 void OP_Fx15() { //set delay timer = regX
@@ -586,7 +533,7 @@ int main(void)
     //--------------------------------------------------------------------------------------
     const int SCREEN_WIDTH{1280};
     const int SCREEN_HEIGHT{640};
-	SetTargetFPS(4);
+	SetTargetFPS(10);
 	initialize_table();
 	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/6-keypad.ch8");
 	load_font();
