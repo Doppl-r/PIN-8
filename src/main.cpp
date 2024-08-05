@@ -119,16 +119,19 @@ void OP_00E0() { //clear screen
 void OP_00EE() { //return from a subroutine
   --stack_pointer;
   program_counter = stack[stack_pointer];
+  std::cout<<"return from subroutine\n";
 }
 
 void OP_1nnn() { //Jump to nnn
   program_counter = opcode & 0x0FFFu;
+  std::cout<<"jump to nnn\n";
 }
 
 void OP_2nnn() { //call subroutine
   stack[stack_pointer] = program_counter;
   ++stack_pointer;
   program_counter = opcode & 0x0FFFu;
+  std::cout<<"call subroutine\n";
 }
 
 void OP_3xkk() { //skip next instruction if regX == kk
@@ -137,6 +140,7 @@ void OP_3xkk() { //skip next instruction if regX == kk
   if (registers[reg] == byte) {
     program_counter+=2;
   }
+  std::cout<<"skip next instruction if regX == kk\n";
 }
 
 void OP_4xkk() { //Skip next instructoin if regX != kk
@@ -145,6 +149,7 @@ void OP_4xkk() { //Skip next instructoin if regX != kk
   if (registers[reg] != byte) {
     program_counter+=2;
   }
+  std::cout<<"Skip next instructoin if regX != kk\n";
 }
 
 void OP_5xy0() { //skip next command if reg x is equal to reg y
@@ -153,6 +158,7 @@ void OP_5xy0() { //skip next command if reg x is equal to reg y
   if (registers[reg] == registers[reg2]) {
     program_counter+=2;
   }
+  std::cout<<"Skip next instructoin if regX == regY\n";
 }
 
 void OP_6xkk() { //Set regX = kk
@@ -160,51 +166,61 @@ void OP_6xkk() { //Set regX = kk
   uint8_t byte = std::bitset<8>((opcode & 0x00FFu)).to_ulong();
 
   registers[reg] = byte;
-  std::cout<<"regX = kk\n";
+  std::cout<<"Set regX = kk\n";
 }
 
 void OP_7xkk() { //regX += kk
   uint8_t reg = std::bitset<8>((opcode & 0x0F00u) >> 8u).to_ulong();
   uint8_t byte = std::bitset<8>((opcode & 0x00FFu)).to_ulong();
   registers[reg] += byte;
-  std::cout<<"regX += kk\n";
+  std::cout<<"Set regX += kk\n";
 }
 
 void OP_8xy0() { //regX = regY
   uint8_t reg = (opcode & 0x0F00u) >> 8u;
   uint8_t reg2 = (opcode & 0x00F0u) >> 4u;
   registers[reg] = registers[reg2];
+  std::cout<<"Set regX = regY\n";
 }
 
 void OP_8xy1() { //regX = regX OR regY
   uint8_t reg = (opcode & 0x0F00u) >> 8u;
   uint8_t reg2 = (opcode & 0x00F0u) >> 4u;
   registers[reg] |= registers[reg2];
+  std::cout<<"Set regX = regX OR regY\n";
 }
 
 void OP_8xy2() { //Set regX = regX AND regY
   uint8_t reg = (opcode & 0x0F00u) >> 8u;
   uint8_t reg2 = (opcode & 0x00F0u) >> 4u;
   registers[reg] &= registers[reg2];
+  std::cout<<"Set regX = regX AND regY\n";
 }
 
 void OP_8xy3() { // Set regX = regX XOR regY
   uint8_t reg = (opcode & 0x0F00u) >> 8u;
   uint8_t reg2 = (opcode & 0x00F0u) >> 4u;
   registers[reg] ^= registers[reg2];
+  std::cout<<"Set regX = regX XOR regY\n";
 }
 
-void OP_8xy4() { //Set regX = regX + regY set regF = carry
-	uint8_t reg = (opcode & 0x0F00u) >> 8u;
-	uint8_t reg2 = (opcode & 0x00F0u) >> 4u;
-  uint16_t sum = registers[reg] + registers[reg2];
-	if (sum > 255U) {
+void OP_8xy4() {
+	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+	uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+	uint16_t sum = registers[Vx] + registers[Vy];
+
+	if (sum > 255)
+	{
 		registers[0xF] = 1;
 	}
-	else {
+	else
+	{
 		registers[0xF] = 0;
 	}
-	registers[reg] = sum & 0xFFu;
+
+	registers[Vx] = sum & 0xFFu;
+	std::cout<<"Set regX = regX + regY, regF set to carry\n";
 }
 
 void OP_8xy5() { // set regX-=regY  set regF  = NOT borrow
@@ -219,6 +235,7 @@ void OP_8xy5() { // set regX-=regY  set regF  = NOT borrow
 	}
 
 	registers[reg] -= registers[reg2];
+	std::cout<<"Set regX -= regY, set regF = NOT borrow\n";
 }
 
 void OP_8xy6() { // set regX = regX SHR 1
@@ -226,6 +243,7 @@ void OP_8xy6() { // set regX = regX SHR 1
 	registers[0xF] = (registers[reg] & 0x1u);
 
 	registers[reg] >>= 1;
+	std::cout<<"Divide regX by 2, save last bit in regF\n";
 }
 
 void OP_8xy7() { //set regX = regY - regX set regF = NOT borrow
@@ -239,6 +257,7 @@ void OP_8xy7() { //set regX = regY - regX set regF = NOT borrow
 		registers[0xF] = 0;
 	}
 	registers[reg1] = registers[reg2] - registers[reg1];
+	
 }
 
 void OP_8xyE() { //set regX  = regX SHL 1
@@ -534,29 +553,21 @@ void Cycle()
 
 	opcode = (static_cast<uint16_t>(firstHalf)<<8u) | secondHalf;
 
-	
-
 	// Increment the PC before we execute anything
 	program_counter += 2;
 	
 	// Decode and Execute
-	std::cout<< "-----------------------------------\n"<<"Reading opcode : " << std::hex << opcode << "\n" << "**********************\n";
+	std::cout<< "-------------------\n"<<"Reading opcode : " << std::hex << opcode << "\n";
 	(*fpt[(opcode & 0xF000u) >> 12u])();
 	
 
-	
-	// Decrement the delay timer if it's been set
-	if (delay_timer > 0)
-	{
+	if (delay_timer > 0) {
 		--delay_timer; 
 	}
 
-	// Decrement the sound timer if it's been set
-	if (sound_timer > 0)
-	{
+	if (sound_timer > 0) {
 		--sound_timer;
 	}
-	
 }
 
 int main(void)
@@ -565,9 +576,9 @@ int main(void)
     //--------------------------------------------------------------------------------------
     const int SCREEN_WIDTH{1280};
     const int SCREEN_HEIGHT{640};
-	SetTargetFPS(10);
+	SetTargetFPS(100);
 	initialize_table();
-	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/2-ibm-logo.ch8");
+	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/4-flags.ch8");
 	load_font();
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 Interpreter)");
 
