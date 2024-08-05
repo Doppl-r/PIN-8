@@ -15,6 +15,7 @@ uint8_t delay_timer{};
 uint8_t sound_timer{};
 uint8_t screen[64*32]{0};
 uint16_t opcode;
+
 uint8_t keypad[16]{
 	49,50,51,52,
 	81,82,83,84,
@@ -23,16 +24,7 @@ uint8_t keypad[16]{
 };
 
 /************************LOADS THE ROM INTO MEMORY**************************** */
-/*
-Testing the IBM logo CHIP-8 program provided by Timendus
-Program completes in 20 cycles 
-Tests the following OP Codes: 
---00E0 
---6xnn
--Annn
--7xnn
--Dxyn
-*/
+
 const unsigned int START_ADDRESS = 0x200; 
 void Load_ROM(char const * file_name) {   //verified to print out correct num of OP Codes and load into memory
     std::ifstream file(file_name, std::ios::binary);
@@ -360,11 +352,19 @@ void OP_Fx07() { //set regX to delay timer
 	registers[Vx] = delay_timer;
 }
 
-void OP_Fx0A() { //wait for a key press, store value in regX
+void OP_Fx0A() { //wait for a key press, store value in regX ------------------------------------------------------------------------------------------
 	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
-	int key =
-
-	
+	int key = GetKeyPressed();
+	if (key != 0) {
+		for (int i = 0; i < 16; ++i) {
+			if (keypad[i] == key) {
+				registers[Vx] = i;
+			}
+		}
+	}
+	else {
+		program_counter -= 2;
+	}
 }
 
 void OP_Fx15() { //set delay timer = regX
