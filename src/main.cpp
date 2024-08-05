@@ -244,12 +244,11 @@ void OP_8xy5() { // set regX-=regY  set regF  = NOT borrow
 
 void OP_8xy6() { // set regX = regX SHR 1
 	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+	uint8_t carry = registers[Vx] & 0b1u;
 	
-	// Save LSB in VF
-	registers[0xF] = (registers[Vx] & 0x1u);
-
 	registers[Vx] >>= 1;
 
+	registers[0xF] = carry;
 }
 
 void OP_8xy7() { //set regX = regY - regX set regF = NOT borrow
@@ -273,9 +272,11 @@ void OP_8xy7() { //set regX = regY - regX set regF = NOT borrow
 void OP_8xyE() { //set regX  = regX SHL 1
 	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
 
-	registers[0xF] = (registers[Vx] & 0x80u) >> 7u;
+	uint8_t carry = (registers[Vx] & 0b10000000u) >> 7u;
 
 	registers[Vx] <<= 1;
+
+	registers[0xF] = carry;
 }
 
 void OP_9xy0() { //skip next instruction if regX != regY
