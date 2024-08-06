@@ -366,7 +366,7 @@ void OP_Fx0A() { //wait for a key press, store value in regX -------------------
 			registers[Vx] = key;
 		}
 	}
-	
+	std::cout<< "looking for key press\n";
 
 }
 
