@@ -395,7 +395,7 @@ void OP_Fx65() { //read registers reg0 through regX from memory starting at loca
 
 /************************FUNCTION POINTER SETUP**************************** */
 
-void OP_NULL() { std::<<"CALLED NULL FUNCTION"<<"\n";}; //null function
+void OP_NULL() { std::cout<<"CALLED NULL FUNCTION"<<"\n";}; //null function
 
 decltype(&OP_NULL) fpt[0xF+1]{&OP_NULL}; //for codes numbering 0-F
 
@@ -508,7 +508,7 @@ int main(void)
     const int SCREEN_HEIGHT{640};
 	SetTargetFPS(500);
 	initialize_table();
-	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/br8kout.ch8");
+	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/Space Invaders [David Winter].ch8");
 	load_font();
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 Interpreter)");
 
