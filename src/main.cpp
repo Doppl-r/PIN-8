@@ -15,6 +15,7 @@ uint8_t delay_timer{};
 uint8_t sound_timer{};
 uint8_t screen[64*32]{0};
 uint16_t opcode;
+uint8_t keycode;
 
 uint8_t keypad[16]{
 	49,50,51,52,
@@ -44,7 +45,7 @@ void Load_ROM(char const * file_name) {   //verified to print out correct num of
             
             memory[START_ADDRESS + i] = buffer[i];
             memory[START_ADDRESS + i + 1] = buffer[i + 1];
-			//std::cout<<std::hex<<std::bitset<16>(buffer[i] << buffer[i+1]).to_ulong() << "\n";
+			
         }
     }
 }
@@ -90,13 +91,10 @@ uint8_t random_number_generator() {
 void draw_screen() {
 	for (int y = 0; y < 32; ++y) {
 		for (int x = 0; x < 64; ++x) {
-		
-		if (screen[(64*y) + x] == 1) {
-			DrawRectangle(x*20, y*20, 20, 20, WHITE);
-			
-		}
-		
-		//std::cout<<(i*32 + r)<<" : " << screen[i*32 + r] << "\n";
+			if (screen[(64*y) + x] == 1) {
+				DrawRectangle(x*20, y*20, 20, 20, WHITE);
+				
+			}
 		}
 	}
 }
@@ -105,25 +103,21 @@ void draw_screen() {
 
 void OP_00E0() { //clear screen
   std::memset(screen, 0, 64*32);
-  std::cout<<"clear screen\n";
 }
 
 void OP_00EE() { //return from a subroutine
   --stack_pointer;
   program_counter = stack[stack_pointer];
-  std::cout<<"return from subroutine\n";
 }
 
 void OP_1nnn() { //Jump to nnn
   program_counter = opcode & 0x0FFFu;
-  std::cout<<"jump to nnn\n";
 }
 
 void OP_2nnn() { //call subroutine
   stack[stack_pointer] = program_counter;
   ++stack_pointer;
   program_counter = opcode & 0x0FFFu;
-  std::cout<<"call subroutine\n";
 }
 
 void OP_3xkk() { //skip next instruction if regX == kk
@@ -132,7 +126,6 @@ void OP_3xkk() { //skip next instruction if regX == kk
   if (registers[reg] == byte) {
     program_counter+=2;
   }
-  std::cout<<"skip next instruction if regX == kk\n";
 }
 
 void OP_4xkk() { //Skip next instructoin if regX != kk
@@ -141,7 +134,6 @@ void OP_4xkk() { //Skip next instructoin if regX != kk
   if (registers[reg] != byte) {
     program_counter+=2;
   }
-  std::cout<<"Skip next instructoin if regX != kk\n";
 }
 
 void OP_5xy0() { //skip next command if reg x is equal to reg y
@@ -150,7 +142,6 @@ void OP_5xy0() { //skip next command if reg x is equal to reg y
   if (registers[reg] == registers[reg2]) {
     program_counter+=2;
   }
-  std::cout<<"Skip next instructoin if regX == regY\n";
 }
 
 void OP_6xkk() { //Set regX = kk
@@ -158,42 +149,36 @@ void OP_6xkk() { //Set regX = kk
   uint8_t byte = std::bitset<8>((opcode & 0x00FFu)).to_ulong();
 
   registers[reg] = byte;
-  std::cout<<"Set regX = kk\n";
 }
 
 void OP_7xkk() { //regX += kk
   uint8_t reg = std::bitset<8>((opcode & 0x0F00u) >> 8u).to_ulong();
   uint8_t byte = std::bitset<8>((opcode & 0x00FFu)).to_ulong();
   registers[reg] += byte;
-  std::cout<<"Set regX += kk\n";
 }
 
 void OP_8xy0() { //regX = regY
   uint8_t reg = (opcode & 0x0F00u) >> 8u;
   uint8_t reg2 = (opcode & 0x00F0u) >> 4u;
   registers[reg] = registers[reg2];
-  std::cout<<"Set regX = regY\n";
 }
 
 void OP_8xy1() { //regX = regX OR regY
   uint8_t reg = (opcode & 0x0F00u) >> 8u;
   uint8_t reg2 = (opcode & 0x00F0u) >> 4u;
   registers[reg] |= registers[reg2];
-  std::cout<<"Set regX = regX OR regY\n";
 }
 
 void OP_8xy2() { //Set regX = regX AND regY
   uint8_t reg = (opcode & 0x0F00u) >> 8u;
   uint8_t reg2 = (opcode & 0x00F0u) >> 4u;
   registers[reg] &= registers[reg2];
-  std::cout<<"Set regX = regX AND regY\n";
 }
 
 void OP_8xy3() { // Set regX = regX XOR regY
   uint8_t reg = (opcode & 0x0F00u) >> 8u;
   uint8_t reg2 = (opcode & 0x00F0u) >> 4u;
   registers[reg] ^= registers[reg2];
-  std::cout<<"Set regX = regX XOR regY\n";
 }
 
 void OP_8xy4() {
@@ -203,17 +188,12 @@ void OP_8xy4() {
 	uint16_t sum = registers[Vx] + registers[Vy];
 
 	registers[Vx] = sum & 0x00FFu;
-	if (sum > 255)
-	{
+	if (sum > 255) {
 		registers[0xF] = 1;
 	}
-	else
-	{
+	else {
 		registers[0xF] = 0;
 	}
-
-	
-	std::cout<<"Set regX = regX + regY, regF set to carry\n";
 }
 
 void OP_8xy5() { // set regX-=regY  set regF  = NOT borrow
@@ -231,7 +211,6 @@ void OP_8xy5() { // set regX-=regY  set regF  = NOT borrow
 	else {
 		registers[0xF] = 0;
 	}
-	std::cout<<"Set regX -= regY, set regF = NOT borrow\n";
 }
 
 void OP_8xy6() { // set regX = regX SHR 1
@@ -284,7 +263,6 @@ void OP_Annn() { //set index to address
 	uint16_t address = opcode & 0x0FFFu;
 
 	index_register = address;
-	std::cout<<"set index to register\n";
 }
 
 void OP_Bnnn() { //jump to location
@@ -304,15 +282,10 @@ void OP_Dxyn() //Draws sprites   ***************************** formula for (x,y)
 	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
 	uint8_t Vy = (opcode & 0x00F0u) >> 4u;
 	uint8_t height = opcode & 0x000Fu;
-	std::cout<< "Val in Vx: " << std::bitset<8>(registers[Vx]) << "\n";
-	std::cout<< "Val in Vy: " << std::bitset<8>(registers[Vy]) << "\n";
 	uint8_t xPos{registers[Vx]};
 	if (registers[Vx] > 64) {xPos = registers[Vx] % 64;}
 	uint8_t yPos{registers[Vy]};
 	if (registers[Vy] > 32) {yPos = registers[Vx] % 32;}
-
-	std::cout << "xPos: " << std::bitset<8>(xPos) << "\n";
-	std::cout << "ypos: " << std::bitset<8>(yPos) << "\n";
 
 	registers[0xF] = 0;
 
@@ -354,19 +327,17 @@ void OP_Fx07() { //set regX to delay timer
 
 void OP_Fx0A() { //wait for a key press, store value in regX ------------------------------------------------------------------------------------------
 	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
-	int key = 0;
 
-	while(key == 0) {
-		key = GetKeyPressed();
-
-	}
-
-	for (int i = 0; i < 16; ++i) {
-		if (keypad[i] == key) {
-			registers[Vx] = key;
+	if (keycode != 0) {
+		for (int i = 0; i<16; ++i) {
+			if (keypad[i] == keycode) {
+				registers[Vx] = i;
+			}
 		}
 	}
-	std::cout<< "looking for key press\n";
+	else {
+		program_counter -= 2;
+	}
 
 }
 
@@ -424,7 +395,7 @@ void OP_Fx65() { //read registers reg0 through regX from memory starting at loca
 
 /************************FUNCTION POINTER SETUP**************************** */
 
-void OP_NULL() { std::cout<<"CALLED NULL FUNCTION"<<"\n";}; //null function
+void OP_NULL() { std::<<"CALLED NULL FUNCTION"<<"\n";}; //null function
 
 decltype(&OP_NULL) fpt[0xF+1]{&OP_NULL}; //for codes numbering 0-F
 
@@ -516,8 +487,7 @@ void Cycle()
 	// Increment the PC before we execute anything
 	program_counter += 2;
 	
-	// Decode and Execute
-	std::cout<< "-------------------\n"<<"Reading opcode : " << std::hex << opcode << "\n";
+	// Decode and Executes
 	(*fpt[(opcode & 0xF000u) >> 12u])();
 	
 
@@ -536,15 +506,16 @@ int main(void)
     //--------------------------------------------------------------------------------------
     const int SCREEN_WIDTH{1280};
     const int SCREEN_HEIGHT{640};
-	SetTargetFPS(20);
+	SetTargetFPS(500);
 	initialize_table();
-	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/6-keypad.ch8");
+	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/br8kout.ch8");
 	load_font();
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 Interpreter)");
 
 	
 	while(!WindowShouldClose()) {
 		Cycle();
+		keycode = GetKeyPressed();
 		BeginDrawing();
 			ClearBackground(BLACK);
 			draw_screen();
