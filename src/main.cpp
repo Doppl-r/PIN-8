@@ -282,15 +282,19 @@ void OP_Dxyn() //Draws sprites   ***************************** formula for (x,y)
 {
 	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
 	uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
 	uint8_t height = opcode & 0x000Fu;
+
 	uint8_t xPos{registers[Vx]};
 	if (registers[Vx] > 64) {xPos = registers[Vx] % 64;}
+
 	uint8_t yPos{registers[Vy]};
 	if (registers[Vy] > 32) {yPos = registers[Vx] % 32;}
 
 	registers[0xF] = 0;
 
 	for (int r = 0; r < height; r++) {
+		
 		uint8_t spriteByte = memory[index_register + r];
 
 		for (int i = 0; i < 8; ++i) {
@@ -356,7 +360,7 @@ void OP_Fx1E() { //set index = index + regX
 }
 
 void OP_Fx29() { //set index_register equal to sprite location
-	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+	uint8_t Vx = (opcode & 0xF00u) >> 8u;
 	uint8_t digit = registers[Vx];
 	index_register = FONT_START + (5 * digit);
 }
@@ -500,7 +504,7 @@ int main(void)
     const int SCREEN_HEIGHT{640};
 	SetTargetFPS(60);
 	initialize_table();
-	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/6-keypad.ch8");
+	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/oob_test_7.ch8");
 	load_font();
 
 	
@@ -517,7 +521,7 @@ int main(void)
 			--sound_timer;
 		}
 
-		for (int i = 0; i < 12; ++i) {
+		for (int i = 0; i < 30; ++i) {
 			Cycle();
 		}
 
