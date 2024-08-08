@@ -516,7 +516,7 @@ int main(void)
     const int SCREEN_HEIGHT{640};
 	SetTargetFPS(500);
 	initialize_table();
-	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/Space Invaders [David Winter].ch8");
+	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/6-keypad.ch8");
 	load_font();
 
 	/*
