@@ -522,16 +522,16 @@ int main(void)
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 Interpreter)");
 	while(!WindowShouldClose()) {
 
-		for (int i = 0; i < 12; ++i) {
-			Cycle();
-		}
-
 		if (delay_timer > 0) {
 			--delay_timer; 
 		}
 
 		if (sound_timer > 0) {
 			--sound_timer;
+		}
+
+		for (int i = 0; i < 12; ++i) {
+			Cycle();
 		}
 
 		keycode = GetKeyPressed();
