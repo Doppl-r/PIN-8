@@ -22,8 +22,9 @@ const uint8_t keyMap[16] = {KEY_X, KEY_ONE, KEY_TWO, KEY_THREE, KEY_Q, KEY_W, KE
 /************************LOADS THE ROM INTO MEMORY**************************** */
 
 const unsigned int START_ADDRESS = 0x200; 
-void Load_ROM(char const * file_name) {   //verified to print out correct num of OP Codes and load into memory
-    std::ifstream file(file_name, std::ios::binary);
+void Load_ROM(char const * file_name) {  
+
+	std::ifstream file(file_name, std::ios::binary);
 
     if (file.is_open()) {
 
@@ -37,16 +38,8 @@ void Load_ROM(char const * file_name) {   //verified to print out correct num of
         file.close();
 
         for(int i = 0; i < length; i+=2) {
-            
             memory[START_ADDRESS + i] = buffer[i];
-            memory[START_ADDRESS + i + 1] = buffer[i + 1];
-
-			/*
-			uint8_t firstHalf{static_cast<uint8_t>(buffer[i])};
-			uint8_t secondHalf{static_cast<uint8_t>(buffer[i+1])};
-
-			std::cout << std::hex << std::bitset<16>((static_cast<uint16_t>(firstHalf)<<8u) | secondHalf).to_ulong() << "\n";
-			*/			
+            memory[START_ADDRESS + i + 1] = buffer[i + 1];		
         }
     }
 }
@@ -294,7 +287,7 @@ void OP_Dxyn() //Draws sprites   ***************************** formula for (x,y)
 	registers[0xF] = 0;
 
 	for (int r = 0; r < height; r++) {
-		
+
 		uint8_t spriteByte = memory[index_register + r];
 
 		for (int i = 0; i < 8; ++i) {
@@ -481,18 +474,12 @@ void initialize_table() {
 /************************CYCLE FUNCTION**************************** */
 void Cycle()
 {
-	
-	// Fetch
-	
 	uint8_t firstHalf{static_cast<uint8_t>(memory[program_counter])};
 	uint8_t secondHalf{static_cast<uint8_t>(memory[program_counter+1])};
 	opcode = (static_cast<uint16_t>(firstHalf)<<8u) | secondHalf;
 	
-	std::cout << std::hex << std::bitset<16>(opcode).to_ulong() << "\n";
-	// Increment the PC before we execute anything
 	program_counter += 2;
 	
-	// Decode and Executes
 	(*fpt[(opcode & 0xF000u) >> 12u])();
 }
 
@@ -504,15 +491,11 @@ int main(void)
     const int SCREEN_HEIGHT{640};
 	SetTargetFPS(60);
 	initialize_table();
-	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/oob_test_7.ch8");
+	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/6-keypad.ch8");
 	load_font();
 
-	
-
-	
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 Interpreter)");
 	while(!WindowShouldClose()) {
-
 		if (delay_timer > 0) {
 			--delay_timer; 
 		}
@@ -530,6 +513,5 @@ int main(void)
 			draw_screen();
 		EndDrawing();
 	}
-	
 	return 0;
 }
