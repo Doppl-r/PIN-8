@@ -45,6 +45,11 @@ void Load_ROM(char const * file_name) {   //verified to print out correct num of
             
             memory[START_ADDRESS + i] = buffer[i];
             memory[START_ADDRESS + i + 1] = buffer[i + 1];
+
+			uint8_t firstHalf{static_cast<uint8_t>(buffer[i])};
+			uint8_t secondHalf{static_cast<uint8_t>(buffer[i+1])};
+
+			std::cout << std::hex << std::bitset<16>((static_cast<uint16_t>(firstHalf)<<8u) | secondHalf).to_ulong() << "\n";
 			
         }
     }
@@ -480,7 +485,7 @@ void initialize_table() {
 /************************CYCLE FUNCTION**************************** */
 void Cycle()
 {
-	/*
+	
 	// Fetch
 	uint8_t firstHalf{static_cast<uint8_t>(memory[program_counter])};
 	uint8_t secondHalf{static_cast<uint8_t>(memory[program_counter+1])};
@@ -489,7 +494,7 @@ void Cycle()
 
 	// Increment the PC before we execute anything
 	program_counter += 2;
-	*/
+	
 	// Decode and Executes
 	(*fpt[(opcode & 0xF000u) >> 12u])();
 	
@@ -513,12 +518,9 @@ int main(void)
 	initialize_table();
 	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/Space Invaders [David Winter].ch8");
 	load_font();
-	//InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 Interpreter)");
 
-
-	opcode = 0xF00A;
-	Cycle();
-	/*	
+	/*
+	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 Interpreter)");
 	while(!WindowShouldClose()) {
 		Cycle();
 		keycode = GetKeyPressed();
@@ -527,7 +529,6 @@ int main(void)
 			draw_screen();
 		EndDrawing();
 	}
-	return 0;
 	*/
-
+	return 0;
 }
