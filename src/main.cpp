@@ -17,12 +17,7 @@ uint8_t screen[64*32]{0};
 uint16_t opcode;
 uint8_t keycode;
 
-uint8_t keypad[16]{
-	49,50,51,52,
-	81,82,83,84,
-	65,55,67,68,
-	90,91,92,93
-};
+const uint8_t keyMap[16] = {KEY_X, KEY_ONE, KEY_TWO, KEY_THREE, KEY_Q, KEY_W, KEY_E, KEY_A, KEY_S, KEY_D, KEY_Z, KEY_C, KEY_FOUR, KEY_R, KEY_F, KEY_V};
 
 /************************LOADS THE ROM INTO MEMORY**************************** */
 
@@ -311,21 +306,19 @@ void OP_Dxyn() //Draws sprites   ***************************** formula for (x,y)
 }
 
 void OP_Ex9E() { //skip next instruction if the value of a key = regX
-	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
-	uint8_t key = registers[Vx];
-	if (keypad[key]) {
-		program_counter += 2;
-	}
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t key = registers[Vx];
+    if (IsKeyDown(keyMap[key & 0xf])) {
+        program_counter += 2;
+    }
 }
 
-void OP_ExA1() { //skip next instruction if vascreelue of key is not equal to regX
-	std::cout << "EXA1 called \n";
-
+void OP_ExA1() { //skip next instruction if the value of key is not equal to regX
 	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
-	uint8_t key = registers[Vx];
-	if (!keypad[key]) {
-		program_counter += 2;
-	}
+    uint8_t key = registers[Vx];
+    if (IsKeyUp(keyMap[key & 0xf])) {
+        program_counter += 2;
+    }
 }
 
 void OP_Fx07() { //set regX to delay timer
@@ -335,21 +328,15 @@ void OP_Fx07() { //set regX to delay timer
 
 void OP_Fx0A() { //wait for a key press, store value in regX ------------------------------------------------------------------------------------------
 
-	std::cout<<"Fx0A called!*******************************************************\n";
-	/*
 	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
 
-	if (keycode != 0) {
-		for (int i = 0; i<16; ++i) {
-			if (keypad[i] == keycode) {
-				registers[Vx] = i;
-			}
-		}
-	}
-	else {
-		program_counter -= 2;
-	}
-	*/
+    for (int i = 0; i<16; ++i) {
+        if (IsKeyReleased(keyMap[i])) {
+            registers[Vx] = i;
+            return;
+        }
+    }
+    program_counter -= 2;
 
 }
 
@@ -533,8 +520,6 @@ int main(void)
 		for (int i = 0; i < 12; ++i) {
 			Cycle();
 		}
-
-		keycode = GetKeyPressed();
 
 		BeginDrawing();
 			ClearBackground(BLACK);
