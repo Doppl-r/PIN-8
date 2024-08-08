@@ -319,6 +319,8 @@ void OP_Ex9E() { //skip next instruction if the value of a key = regX
 }
 
 void OP_ExA1() { //skip next instruction if vascreelue of key is not equal to regX
+	std::cout << "EXA1 called \n";
+
 	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
 	uint8_t key = registers[Vx];
 	if (!keypad[key]) {
@@ -495,22 +497,12 @@ void Cycle()
 	uint8_t secondHalf{static_cast<uint8_t>(memory[program_counter+1])};
 	opcode = (static_cast<uint16_t>(firstHalf)<<8u) | secondHalf;
 	
-
 	std::cout << std::hex << std::bitset<16>(opcode).to_ulong() << "\n";
 	// Increment the PC before we execute anything
 	program_counter += 2;
 	
 	// Decode and Executes
 	(*fpt[(opcode & 0xF000u) >> 12u])();
-	
-
-	if (delay_timer > 0) {
-		--delay_timer; 
-	}
-
-	if (sound_timer > 0) {
-		--sound_timer;
-	}
 }
 
 int main(void)
@@ -529,8 +521,21 @@ int main(void)
 	
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 Interpreter)");
 	while(!WindowShouldClose()) {
-		Cycle();
+
+		for (int i = 0; i < 12; ++i) {
+			Cycle();
+		}
+
+		if (delay_timer > 0) {
+			--delay_timer; 
+		}
+
+		if (sound_timer > 0) {
+			--sound_timer;
+		}
+
 		keycode = GetKeyPressed();
+
 		BeginDrawing();
 			ClearBackground(BLACK);
 			draw_screen();
