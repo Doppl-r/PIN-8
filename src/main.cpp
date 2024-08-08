@@ -333,7 +333,8 @@ void OP_Fx07() { //set regX to delay timer
 
 void OP_Fx0A() { //wait for a key press, store value in regX ------------------------------------------------------------------------------------------
 
-	std::cout<<"Fx0A called!\n";
+	std::cout<<"Fx0A called!*******************************************************\n";
+	/*
 	uint8_t Vx = (opcode & 0x0F00u) >> 8u;
 
 	if (keycode != 0) {
@@ -346,6 +347,7 @@ void OP_Fx0A() { //wait for a key press, store value in regX -------------------
 	else {
 		program_counter -= 2;
 	}
+	*/
 
 }
 
@@ -488,11 +490,11 @@ void Cycle()
 {
 	
 	// Fetch
-	/*
+	
 	uint8_t firstHalf{static_cast<uint8_t>(memory[program_counter])};
 	uint8_t secondHalf{static_cast<uint8_t>(memory[program_counter+1])};
 	opcode = (static_cast<uint16_t>(firstHalf)<<8u) | secondHalf;
-	*/
+	
 
 	std::cout << std::hex << std::bitset<16>(opcode).to_ulong() << "\n";
 	// Increment the PC before we execute anything
@@ -522,10 +524,9 @@ int main(void)
 	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/6-keypad.ch8");
 	load_font();
 
-	opcode = 0xFE0A;
-	Cycle();
+	
 
-	/*
+	
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 Interpreter)");
 	while(!WindowShouldClose()) {
 		Cycle();
@@ -535,6 +536,6 @@ int main(void)
 			draw_screen();
 		EndDrawing();
 	}
-	*/
+	
 	return 0;
 }
