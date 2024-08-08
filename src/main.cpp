@@ -519,7 +519,7 @@ int main(void)
     //--------------------------------------------------------------------------------------
     const int SCREEN_WIDTH{1280};
     const int SCREEN_HEIGHT{640};
-	SetTargetFPS(500);
+	SetTargetFPS(60);
 	initialize_table();
 	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/6-keypad.ch8");
 	load_font();
