@@ -46,11 +46,12 @@ void Load_ROM(char const * file_name) {   //verified to print out correct num of
             memory[START_ADDRESS + i] = buffer[i];
             memory[START_ADDRESS + i + 1] = buffer[i + 1];
 
+			/*
 			uint8_t firstHalf{static_cast<uint8_t>(buffer[i])};
 			uint8_t secondHalf{static_cast<uint8_t>(buffer[i+1])};
 
 			std::cout << std::hex << std::bitset<16>((static_cast<uint16_t>(firstHalf)<<8u) | secondHalf).to_ulong() << "\n";
-			
+			*/			
         }
     }
 }
@@ -487,11 +488,13 @@ void Cycle()
 {
 	
 	// Fetch
+	/*
 	uint8_t firstHalf{static_cast<uint8_t>(memory[program_counter])};
 	uint8_t secondHalf{static_cast<uint8_t>(memory[program_counter+1])};
-
 	opcode = (static_cast<uint16_t>(firstHalf)<<8u) | secondHalf;
+	*/
 
+	std::cout << std::hex << std::bitset<16>(opcode).to_ulong() << "\n";
 	// Increment the PC before we execute anything
 	program_counter += 2;
 	
@@ -518,6 +521,9 @@ int main(void)
 	initialize_table();
 	Load_ROM("/home/doppler/C++ Projects/PIN-8/external/programs/6-keypad.ch8");
 	load_font();
+
+	opcode = 0xFE0A;
+	Cycle();
 
 	/*
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PIN-8 (A CHIP-8 Interpreter)");
